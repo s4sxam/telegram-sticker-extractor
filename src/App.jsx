@@ -11,7 +11,7 @@ function FileCard({ sticker, index, onDownload }) {
   return (
     <div
       onClick={() => onDownload(sticker)}
-      title="Click to download"
+      title={`Download ${sticker.name}`}
       style={{
         background: "#1c1c1e",
         border: "1px solid #2a2a2a",
@@ -31,16 +31,26 @@ function FileCard({ sticker, index, onDownload }) {
         overflow: "hidden",
       }}>
         {sticker.type === "video" ? (
-          <video src={sticker.url} style={{ maxHeight: 110, maxWidth: "100%", objectFit: "contain" }} muted playsInline autoPlay loop />
+          <video 
+            src={sticker.url} 
+            title={`Animated Telegram Sticker ${sticker.name}`}
+            style={{ maxHeight: 110, maxWidth: "100%", objectFit: "contain" }} 
+            muted playsInline autoPlay loop 
+          />
         ) : (
-          <img src={sticker.url} alt={sticker.name} style={{ maxHeight: 110, maxWidth: "100%", objectFit: "contain" }} />
+          <img 
+            src={sticker.url} 
+            alt={`Extracted Telegram Sticker ${sticker.name}`} 
+            loading="lazy"
+            style={{ maxHeight: 110, maxWidth: "100%", objectFit: "contain" }} 
+          />
         )}
       </div>
       <div style={{ padding: "8px 10px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <span style={{ fontSize: 10, color: "#666", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", maxWidth: "70%" }}>
           {sticker.name}
         </span>
-        <span style={{ fontSize: 15 }}>⬇️</span>
+        <span style={{ fontSize: 15 }} aria-hidden="true">⬇️</span>
       </div>
     </div>
   );
@@ -58,8 +68,8 @@ export default function App() {
     setLoading(true);
     try {
       const zip = await JSZip.loadAsync(file);
-      const results = [];
-      const tasks = [];
+      const results =[];
+      const tasks =[];
 
       zip.forEach((path, entry) => {
         if (entry.dir) return;
@@ -90,7 +100,7 @@ export default function App() {
       alert("Could not read ZIP file. Please try again.");
     }
     setLoading(false);
-  }, []);
+  },[]);
 
   const onDrop = (e) => {
     e.preventDefault();
@@ -121,10 +131,10 @@ export default function App() {
   const images = stickers.filter(s => s.type === "image");
   const videos = stickers.filter(s => s.type === "video");
 
-  const steps = [
+  const steps =[
     { icon: "📦", title: "Drop your ZIP file", desc: "Export your Telegram sticker pack as a .zip file and drop it here." },
     { icon: "✨", title: "Stickers get extracted", desc: "All image and video stickers are extracted and previewed instantly." },
-    { icon: "⬇️", title: "Download them", desc: "Download all stickers to your device gallery. WebP files are saved as PNG." },
+    { icon: "⬇️", title: "Download them", desc: "Download all stickers to your device gallery. WebP files are automatically saved as PNG." },
     { icon: "📲", title: "Add to Instagram", desc: "Open Instagram → Story or DM → Sticker icon → tap + → pick from gallery → saved to Recents!" },
   ];
 
@@ -136,19 +146,19 @@ export default function App() {
         * { box-sizing: border-box; margin: 0; padding: 0; }
       `}</style>
 
-      {/* Header */}
-      <div style={{
+      {/* Header (Optimized with semantic <header> and <h1>) */}
+      <header style={{
         background: "linear-gradient(90deg, #833ab4, #fd1d1d, #fcb045)",
         padding: "20px 28px", display: "flex", alignItems: "center", gap: 14,
       }}>
-        <div style={{ fontSize: 32 }}>✨</div>
+        <div style={{ fontSize: 32 }} aria-hidden="true">✨</div>
         <div>
-          <div style={{ fontSize: 22, fontWeight: 800 }}>Telegram Sticker Extractor</div>
-          <div style={{ fontSize: 12, opacity: 0.85, marginTop: 2 }}>Extract stickers from .zip and save to your device</div>
+          <h1 style={{ fontSize: 22, fontWeight: 800, margin: 0 }}>Telegram Sticker Extractor</h1>
+          <p style={{ fontSize: 13, opacity: 0.9, marginTop: 4, margin: 0 }}>Extract sticker packs from .zip and save to your device</p>
         </div>
-      </div>
+      </header>
 
-      <div style={{ padding: "32px 24px", maxWidth: 800, margin: "0 auto" }}>
+      <main style={{ padding: "32px 24px", maxWidth: 800, margin: "0 auto" }}>
 
         {phase === "upload" && (
           <>
@@ -158,6 +168,7 @@ export default function App() {
               onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
               onDragLeave={() => setDragging(false)}
               onClick={() => fileRef.current.click()}
+              aria-label="File upload dropzone"
               style={{
                 border: `2.5px dashed ${dragging ? "#fcb045" : "#333"}`,
                 borderRadius: 20, padding: "56px 24px", textAlign: "center",
@@ -179,31 +190,33 @@ export default function App() {
                   <div style={{ fontSize: 18, fontWeight: 800, marginBottom: 8 }}>
                     {dragging ? "Drop it!" : "Drop your Telegram .zip here"}
                   </div>
-                  <div style={{ color: "#666", fontSize: 13 }}>or click to browse • supports .png .webp .gif .mp4 .webm</div>
+                  <p style={{ color: "#666", fontSize: 13, margin: 0 }}>or click to browse • supports .png .webp .gif .mp4 .webm</p>
                 </>
               )}
             </div>
 
-            {/* Steps */}
-            <div style={{ fontSize: 14, fontWeight: 700, color: "#888", marginBottom: 16, letterSpacing: 1 }}>HOW IT WORKS</div>
-            {steps.map((step, i) => (
-              <div key={i} style={{
-                background: "#1c1c1e", border: "1px solid #2a2a2a",
-                borderRadius: 14, padding: "16px 20px", marginBottom: 12,
-                display: "flex", gap: 16, alignItems: "flex-start",
-              }}>
-                <div style={{
-                  minWidth: 32, height: 32, borderRadius: "50%",
-                  background: "linear-gradient(135deg,#833ab4,#fd1d1d)",
-                  display: "flex", alignItems: "center", justifyContent: "center",
-                  fontWeight: 800, fontSize: 13,
-                }}>{i + 1}</div>
-                <div>
-                  <div style={{ fontWeight: 700, marginBottom: 4 }}>{step.icon} {step.title}</div>
-                  <div style={{ color: "#777", fontSize: 13, lineHeight: 1.5 }}>{step.desc}</div>
-                </div>
-              </div>
-            ))}
+            {/* Steps (Optimized with semantic <section>, <h2>, <article> and <h3>) */}
+            <section>
+              <h2 style={{ fontSize: 14, fontWeight: 700, color: "#888", marginBottom: 16, letterSpacing: 1 }}>HOW TO EXTRACT TELEGRAM STICKERS</h2>
+              {steps.map((step, i) => (
+                <article key={i} style={{
+                  background: "#1c1c1e", border: "1px solid #2a2a2a",
+                  borderRadius: 14, padding: "16px 20px", marginBottom: 12,
+                  display: "flex", gap: 16, alignItems: "flex-start",
+                }}>
+                  <div style={{
+                    minWidth: 32, height: 32, borderRadius: "50%",
+                    background: "linear-gradient(135deg,#833ab4,#fd1d1d)",
+                    display: "flex", alignItems: "center", justifyContent: "center",
+                    fontWeight: 800, fontSize: 13,
+                  }}>{i + 1}</div>
+                  <div>
+                    <h3 style={{ fontWeight: 700, marginBottom: 4, fontSize: 15, margin: 0 }}>{step.icon} {step.title}</h3>
+                    <p style={{ color: "#777", fontSize: 13, lineHeight: 1.5, margin: "4px 0 0 0" }}>{step.desc}</p>
+                  </div>
+                </article>
+              ))}
+            </section>
           </>
         )}
 
@@ -211,7 +224,7 @@ export default function App() {
           <>
             {/* Stats + Actions */}
             <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 20, flexWrap: "wrap" }}>
-              <div style={{ fontWeight: 800, fontSize: 18 }}>🎉 {stickers.length} Stickers Extracted!</div>
+              <h2 style={{ fontWeight: 800, fontSize: 18, margin: 0 }}>🎉 {stickers.length} Stickers Extracted!</h2>
               <span style={{ background: "rgba(131,58,180,0.3)", borderRadius: 20, padding: "3px 10px", fontSize: 11, fontWeight: 700 }}>
                 🖼 {images.length} images
               </span>
@@ -222,38 +235,4 @@ export default function App() {
                 {formatSize(stickers.reduce((s, f) => s + f.size, 0))} total
               </span>
               <div style={{ marginLeft: "auto", display: "flex", gap: 10 }}>
-                <button onClick={() => { setStickers([]); setPhase("upload"); }}
-                  style={{ background: "#222", border: "1px solid #333", borderRadius: 10, color: "#fff", fontWeight: 700, fontSize: 13, padding: "10px 18px", cursor: "pointer" }}>
-                  ↩ New ZIP
-                </button>
-                <button onClick={downloadAll}
-                  style={{ background: saved ? "#1a3a2a" : "linear-gradient(90deg,#833ab4,#fd1d1d)", border: "none", borderRadius: 10, color: saved ? "#6fdd9a" : "#fff", fontWeight: 700, fontSize: 13, padding: "10px 20px", cursor: "pointer" }}>
-                  {saved ? "✓ All Saved!" : `⬇️ Download All (${stickers.length})`}
-                </button>
-              </div>
-            </div>
-
-            {/* Instagram tip */}
-            <div style={{
-              background: "linear-gradient(90deg,rgba(131,58,180,0.15),rgba(252,176,69,0.15))",
-              border: "1px solid rgba(252,176,69,0.25)", borderRadius: 14,
-              padding: "14px 18px", marginBottom: 24, display: "flex", gap: 12, alignItems: "center",
-            }}>
-              <div style={{ fontSize: 26 }}>📲</div>
-              <div style={{ fontSize: 13, color: "#bbb", lineHeight: 1.6 }}>
-                <b style={{ color: "#fff" }}>To add to Instagram:</b> Download stickers → Open Instagram → Story or DM → tap 😊 → tap <b>+</b> → pick from gallery → appears in Recents ✅
-              </div>
-            </div>
-
-            {/* Grid */}
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(130px, 1fr))", gap: 12 }}>
-              {stickers.map((sticker, i) => (
-                <FileCard key={i} sticker={sticker} index={i} onDownload={downloadSticker} />
-              ))}
-            </div>
-          </>
-        )}
-      </div>
-    </div>
-  );
-}
+                <button onClick={() => { setStickers(
